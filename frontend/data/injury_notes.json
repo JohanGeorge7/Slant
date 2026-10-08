@@ -1,0 +1,49 @@
+{
+ "games": {
+  "TB@DAL": [
+   {
+    "team": "TB",
+    "opponent": "DAL",
+    "player": "Baker Mayfield",
+    "position": "QB",
+    "status": "Out",
+    "source": "model",
+    "win_prob_before": 0.495,
+    "win_prob_after": 0.498,
+    "win_prob_delta": 0.003,
+    "home_win_prob_after": 0.502,
+    "text": "Baker Mayfield (TB) is listed out. Model-adjusted: TB win probability rises 0.3 points, from 49.5% to 49.8%."
+   }
+  ],
+  "CHI@GB": [
+   {
+    "team": "CHI",
+    "opponent": "GB",
+    "player": "Caleb Williams",
+    "position": "QB",
+    "status": "Out",
+    "source": "model",
+    "win_prob_before": 0.577,
+    "win_prob_after": 0.582,
+    "win_prob_delta": 0.005,
+    "home_win_prob_after": 0.418,
+    "text": "Caleb Williams (CHI) is listed out. Model-adjusted: CHI win probability rises 0.5 points, from 57.7% to 58.2%."
+   }
+  ],
+  "BAL@ATL": [
+   {
+    "team": "BAL",
+    "opponent": "ATL",
+    "player": "Lamar Jackson",
+    "position": "QB",
+    "status": "Questionable",
+    "source": "model",
+    "win_prob_before": 0.7,
+    "win_prob_after": 0.707,
+    "win_prob_delta": 0.007,
+    "home_win_prob_after": 0.293,
+    "text": "Lamar Jackson (BAL) is listed questionable. Model-adjusted: BAL win probability rises 0.7 points, from 70.0% to 70.7%."
+   }
+  ]
+ }
+}

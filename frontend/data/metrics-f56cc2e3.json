@@ -1,0 +1,29 @@
+{
+  "game_predictor": {
+    "accuracy": 0.638,
+    "vegas_accuracy": 0.67,
+    "baseline_accuracy": 0.54,
+    "ats": 0.498,
+    "validation": "walk-forward 2021-2024",
+    "model": "logreg",
+    "n_features": 15
+  },
+  "playcall_predictor": {
+    "accuracy": 0.729,
+    "validation": "20% holdout, 2022-2024"
+  },
+  "fourth_down": {
+    "approach": "component expected-points model",
+    "components": [
+      "EP curve by field position",
+      "conversion rate by distance",
+      "FG make rate by distance",
+      "net punt distance"
+    ]
+  },
+  "data": {
+    "seasons": "2015-2025",
+    "plays": 532376,
+    "source": "nflverse"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "game_predictor": {
+    "accuracy": 0.6071,
+    "log_loss": 0.6436,
+    "vegas_accuracy": 0.6721,
+    "blend_accuracy": 0.6643,
+    "baseline_accuracy": 0.5469,
+    "ats": 0.4573,
+    "blend_weight": 0.85,
+    "validation": "walk-forward 2023-2026",
+    "model": "logreg",
+    "n_features": 30
+  },
+  "playcall_predictor": {
+    "accuracy": 0.7152,
+    "accuracy_runpass": 0.6941,
+    "validation": "20% holdout, 2015-2026"
+  },
+  "fourth_down": {
+    "approach": "component expected-points model",
+    "components": [
+      "EP curve by field position",
+      "conversion rate by distance",
+      "FG make rate by distance",
+      "net punt distance"
+    ]
+  },
+  "data": {
+    "seasons": "2015-2026",
+    "plays": 543531,
+    "source": "nflverse"
+  }
+}

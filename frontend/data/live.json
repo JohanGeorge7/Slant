@@ -1,0 +1,172 @@
+{
+ "updated_at": 1791501598.8441951,
+ "season": 2026,
+ "week": 5,
+ "games": {
+  "TB@DAL": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/8 - 8:15 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.502,
+   "away_win_prob_live": 0.498
+  },
+  "PHI@JAX": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 9:30 AM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.579,
+   "away_win_prob_live": 0.421
+  },
+  "CHI@GB": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.418,
+   "away_win_prob_live": 0.582
+  },
+  "CIN@MIA": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.289,
+   "away_win_prob_live": 0.711
+  },
+  "LV@NE": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.75,
+   "away_win_prob_live": 0.25
+  },
+  "MIN@NO": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.406,
+   "away_win_prob_live": 0.594
+  },
+  "CLE@NYJ": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.397,
+   "away_win_prob_live": 0.603
+  },
+  "IND@PIT": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.696,
+   "away_win_prob_live": 0.304
+  },
+  "HOU@TEN": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.453,
+   "away_win_prob_live": 0.547
+  },
+  "NYG@WAS": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 1:00 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.59,
+   "away_win_prob_live": 0.41
+  },
+  "DEN@LAC": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 4:05 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.442,
+   "away_win_prob_live": 0.558
+  },
+  "DET@ARI": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 4:25 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.32,
+   "away_win_prob_live": 0.68
+  },
+  "SF@SEA": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 4:25 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.564,
+   "away_win_prob_live": 0.436
+  },
+  "BAL@ATL": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/11 - 8:20 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.293,
+   "away_win_prob_live": 0.707
+  },
+  "BUF@LA": {
+   "state": "pre",
+   "completed": false,
+   "period": 0,
+   "display_clock": "0:00",
+   "detail": "10/12 - 8:15 PM EDT",
+   "home_score": 0,
+   "away_score": 0,
+   "home_win_prob_live": 0.405,
+   "away_win_prob_live": 0.595
+  }
+ }
+}

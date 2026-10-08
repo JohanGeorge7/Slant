@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gridiron — NFL game predictions, with the working shown</title>
+<meta name="description" content="Win probabilities for every NFL game, built on ten seasons of play-by-play. See the simulations, the calibration, and exactly which numbers moved each pick. Free, no account.">
+<link rel="canonical" href="https://gridiron.example/">
+<meta name="theme-color" content="#080b12">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gridiron">
+<meta property="og:title" content="Gridiron — NFL game predictions, with the working shown">
+<meta property="og:description" content="Win probabilities for every NFL game, built on ten seasons of play-by-play. See the simulations, the calibration, and the reasoning behind each pick.">
+<meta property="og:image" content="/assets/social-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Gridiron — every game, priced by the numbers. 63.8% model accuracy across 532,000 plays.">
+<meta property="og:url" content="https://gridiron.example/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gridiron — NFL game predictions, with the working shown">
+<meta name="twitter:description" content="Win probabilities for every NFL game, built on ten seasons of play-by-play.">
+<meta name="twitter:image" content="/assets/social-preview.png">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/assets/favicon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+.hero{padding:64px 0 20px;position:relative;overflow:hidden;isolation:isolate}
+.hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hero-bg canvas{position:absolute;inset:0;width:100%;height:100%}
+/* Rows of real team logos drifting past, like a stadium concourse. Heavily
+   dimmed so it reads as texture rather than content. */
+.marquee{position:absolute;inset:-8% -2%;display:flex;flex-direction:column;justify-content:center;gap:30px;opacity:.42}
+.mrow{display:flex;gap:30px;width:max-content;will-change:transform}
+.mrow img{width:88px;height:88px;object-fit:contain;filter:grayscale(.15) drop-shadow(0 4px 14px rgba(0,0,0,.5))}
+.mrow.r1{animation:slideL 84s linear infinite}
+.mrow.r2{animation:slideR 96s linear infinite}
+.mrow.r3{animation:slideL 110s linear infinite}
+@keyframes slideL{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes slideR{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.hero-veil{position:absolute;inset:0;
+  background:radial-gradient(ellipse 46% 52% at 28% 46%,rgba(8,11,18,.96) 42%,rgba(8,11,18,.66) 72%,rgba(8,11,18,0) 100%),
+             radial-gradient(ellipse 34% 40% at 74% 40%,rgba(8,11,18,.82) 40%,rgba(8,11,18,0) 100%),
+             linear-gradient(180deg,rgba(8,11,18,.82) 0%,rgba(8,11,18,.15) 26%,rgba(8,11,18,.3) 68%,var(--paper) 100%)}
+.hero-grid{position:relative;z-index:2}
+.hero{padding:64px 0 20px}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:60px;align-items:center}
+.hero .eyebrow{display:flex;align-items:center;gap:11px;margin-bottom:22px}
+.hero .eyebrow .bar{width:26px;height:2px;background:var(--lime-deep)}
+.hero h1{margin-bottom:22px}
+.hero-cta{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
+.hero-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.hp-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.hp-head .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:7px}
+.hp-body{padding:20px 18px}
+.hp-game{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.hp-game:last-child{border-bottom:none}
+.hp-game img,.hp-game .logofb{width:26px;height:26px;object-fit:contain;flex-shrink:0}
+.hp-game .ab{font-weight:700;font-size:13.5px;width:38px}
+.hp-game .tr{flex:1;height:6px;background:var(--paper-2);border-radius:4px;overflow:hidden}
+.hp-game .tr i{display:block;height:100%;width:0;border-radius:4px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.hp-game .pc{font-family:var(--mono);font-size:13px;width:42px;text-align:right}
+
+.board-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;margin-bottom:26px}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:100px;padding:4px}
+.seg button{border:none;background:none;padding:8px 16px;border-radius:100px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:.15s}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--ink);color:#fff}
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(348px,1fr));gap:16px}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:0;text-align:left;width:100%;display:block;color:inherit;position:relative;overflow:hidden;transition:transform .2s cubic-bezier(.2,.9,.3,1),box-shadow .2s,border-color .2s}
+.gcard:hover{transform:translateY(-3px);box-shadow:0 10px 34px rgba(13,13,13,.11);border-color:var(--line-2)}
+.gcard .strip{height:3px;display:flex}
+.gcard .strip i{flex:1}
+.gc-in{padding:18px 20px}
+.gc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.gc-spread{border:1px solid var(--line);border-radius:100px;padding:3px 10px}
+.gc-team{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.gc-team img,.gc-team .logofb{width:32px;height:32px;object-fit:contain;flex-shrink:0}
+.gc-team .ab{font-weight:700;font-size:16px;width:42px;letter-spacing:-.02em}
+.gc-team .tr{flex:1;height:7px;background:var(--paper-2);border-radius:5px;overflow:hidden}
+.gc-team .tr i{display:block;height:100%;width:0;border-radius:5px;transition:width .9s cubic-bezier(.16,1,.3,1)}
+.gc-team .pc{font-family:var(--mono);font-size:14.5px;width:44px;text-align:right;font-weight:500}
+.gc-team.lo .ab,.gc-team.lo .pc{color:var(--ink-3)}
+.gc-foot{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--ink-3)}
+.gc-foot b{color:var(--ink)}
+.gc-foot .go{font-weight:600;color:var(--blue)}
+.logofb{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:-.03em;font-size:10px}
+
+.chart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.chart{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}
+.band .chart{background:#161616;border-color:#282828}
+.chart h3{font-size:16.5px;margin-bottom:5px}
+.chart .cap{font-size:13px;color:var(--ink-3);margin-bottom:18px;line-height:1.5}
+.band .chart .cap{color:#8a8f97}
+.chart canvas{display:block;width:100%}
+.chart .foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--ink-3);display:flex;justify-content:space-between;gap:10px}
+.band .chart .foot{border-color:#282828}
+
+.heat-wrap{display:grid;grid-template-columns:1.35fr .65fr;gap:26px;align-items:start}
+.heat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;overflow-x:auto}
+.heat-grid{display:grid;gap:3px;min-width:520px}
+.heat-cell{aspect-ratio:1;border-radius:5px;border:none;padding:0;transition:transform .12s,outline-color .12s;outline:2px solid transparent}
+.heat-cell:hover{transform:scale(1.13);z-index:3}
+.heat-cell.sel{outline-color:var(--ink);z-index:4}
+.heat-axis{font-family:var(--mono);font-size:10px;color:var(--ink-3);display:grid;place-items:center}
+.heat-legend{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;font-size:12.5px}
+.heat-legend span{display:flex;align-items:center;gap:7px;color:var(--ink-2)}
+.heat-legend i{width:13px;height:13px;border-radius:4px;display:inline-block}
+.readout{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;position:sticky;top:96px}
+.readout .situ{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:4px}
+.readout .sub{font-size:13px;color:var(--ink-3);margin-bottom:20px}
+.bars{display:flex;flex-direction:column;gap:11px}
+.barrow{display:flex;align-items:center;gap:11px;font-size:13.5px}
+.barrow .nm{width:74px;color:var(--ink-2)}
+.barrow .tr{flex:1;height:20px;background:var(--paper-2);border-radius:5px;overflow:hidden}
+.barrow .tr i{display:block;height:100%;border-radius:5px;transition:width .45s ease}
+.bars .barrow .vv{font-family:var(--mono);font-size:12.5px;font-weight:500;width:44px;text-align:right;letter-spacing:0}
+.cmp{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.cmp .hd{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);margin-bottom:12px;text-transform:uppercase}
+
+.howto{margin-top:14px}
+.howto>button{background:none;border:none;color:var(--ink-3);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;padding:6px 0;transition:color .15s}
+.howto>button:hover{color:var(--blue)}
+.howto>button .cv{font-size:10px;transition:transform .2s;display:inline-block}
+.howto.open>button .cv{transform:rotate(90deg)}
+.howto .bd{max-height:0;overflow:hidden;transition:max-height .34s ease}
+.howto.open .bd{max-height:800px}
+.howto .in{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--lime);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:16px 18px;margin-top:10px;font-size:14px;color:var(--ink-2);line-height:1.65}
+.band .howto .in{background:#101010;border-color:#282828;border-left-color:var(--lime);color:#a8adb5}
+.howto .in code{font-family:var(--mono);font-size:12.5px;background:var(--paper-2);padding:2px 6px;border-radius:4px;color:var(--ink)}
+.band .howto .in code{background:#222;color:var(--lime)}
+.howto .in p+p{margin-top:11px}
+
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:52px}
+.rrow{display:flex;align-items:center;gap:13px;padding:10px 0;border-bottom:1px solid var(--line)}
+.rrow .n{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);width:20px}
+.rrow img,.rrow .logofb{width:26px;height:26px;object-fit:contain}
+.rrow .nm{flex:1;font-size:14.5px;font-weight:500}
+.rrow .tr{width:80px;height:6px;background:var(--paper-2);border-radius:4px;overflow:hidden}
+.rrow .tr i{display:block;height:100%;width:0;background:var(--blue);transition:width .8s cubic-bezier(.16,1,.3,1)}
+.rrow .vv{font-family:var(--mono);font-size:13px;color:var(--ink-2);width:48px;text-align:right}
+.rrow.t3 .tr i{background:var(--lime-deep)}
+
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tool{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px}
+.tool h3{font-size:19px;margin-bottom:6px}
+.tool .sub{font-size:13.5px;color:var(--ink-3);margin-bottom:22px}
+.fld{margin-bottom:17px}
+.fld label{display:flex;justify-content:space-between;font-size:13.5px;color:var(--ink-2);margin-bottom:9px;font-weight:500}
+.fld label b{font-family:var(--mono);color:var(--ink);font-weight:500}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--line-2);border-radius:4px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--ink);border-radius:50%;cursor:pointer;transition:transform .12s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;background:var(--ink);border:none;border-radius:50%;cursor:pointer}
+.verdict{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.verdict .vl{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;color:var(--ink-3);margin-bottom:9px;text-transform:uppercase}
+.verdict .vv{font-size:30px;font-weight:800;letter-spacing:-.035em;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.pill{font-size:11.5px;font-weight:600;letter-spacing:0;padding:4px 11px;border-radius:100px;border:1px solid var(--line-2);color:var(--ink-3)}
+.pill.warn{color:var(--amber);border-color:rgba(201,138,16,.4);background:rgba(201,138,16,.07)}
+.eprow{display:flex;align-items:center;gap:11px;margin-top:11px;font-size:13px}
+.eprow .d{width:82px;color:var(--ink-2)}
+.eprow .tr{flex:1;height:19px;background:var(--paper-2);border-radius:5px;position:relative;overflow:hidden}
+.eprow .tr .md{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-2)}
+.eprow .tr i{position:absolute;top:0;bottom:0;transition:width .4s ease}
+.eprow .vv{font-family:var(--mono);font-size:12.5px;font-weight:500;width:52px;text-align:right;letter-spacing:0}
+.eprow.best .d{color:var(--green);font-weight:600}
+.eprow.na .d,.eprow.na .vv{color:var(--ink-3);opacity:.6}
+.eprow.na .vv{width:100px;font-size:11px;line-height:1.25}
+.caveat{margin-top:15px;font-size:12.5px;color:#8a5f08;background:rgba(201,138,16,.09);border:1px solid rgba(201,138,16,.25);border-radius:var(--r-sm);padding:11px 13px;line-height:1.5}
+
+.ov{position:fixed;inset:0;z-index:200;display:none}
+.ov.on{display:block}
+.ov-bg{position:absolute;inset:0;background:rgba(13,13,13,.5);backdrop-filter:blur(4px);opacity:0;transition:opacity .28s}
+.ov.on .ov-bg{opacity:1}
+.ov-panel{position:absolute;top:0;right:0;bottom:0;width:min(780px,100%);background:var(--paper);border-left:1px solid var(--line);overflow-y:auto;transform:translateX(28px);opacity:0;transition:transform .34s cubic-bezier(.2,.9,.3,1),opacity .3s}
+.ov.on .ov-panel{transform:none;opacity:1}
+.ov-top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:16px 22px;background:rgba(242,241,237,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.ov-nav{display:flex;align-items:center;gap:10px}
+.ov-top button{background:var(--card);border:1px solid var(--line);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:16px;color:var(--ink-2);transition:.15s}
+.ov-top button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ov-nav span{font-family:var(--mono);font-size:12px;color:var(--ink-3);min-width:50px;text-align:center}
+.ov-body{padding:28px 34px 70px}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:26px}
+.vs-t{text-align:center}
+.vs-t img,.vs-t .logofb{width:72px;height:72px;object-fit:contain;margin-bottom:10px}
+.vs-t .logofb{font-size:22px;margin-inline:auto}
+.vs-t .nk{font-weight:700;font-size:19px;letter-spacing:-.025em}
+.vs-t .el{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-top:3px}
+.vs-at{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.wp{display:flex;height:48px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.wp span{display:flex;align-items:center;font-family:var(--mono);font-size:15px;font-weight:500;color:#fff;transition:width .9s cubic-bezier(.16,1,.3,1);white-space:nowrap;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.wp .a{padding-left:15px}
+.wp .h{justify-content:flex-end;padding-right:15px}
+.wp-l{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-3);margin:9px 0 28px}
+.dsec{margin-bottom:32px}
+.dsec h3{font-size:14px;font-weight:700;margin-bottom:15px;display:flex;align-items:center;gap:10px}
+.dsec h3 .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400}
+.dstats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.dstat{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px 16px}
+.dstat .v{font-size:20px;font-weight:700;letter-spacing:-.03em}
+.dstat .l{font-size:10.5px;color:var(--ink-3);margin-top:5px;font-family:var(--mono);letter-spacing:.05em}
+.driver{margin-bottom:15px}
+.driver-t{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;gap:12px}
+.driver-nm{font-size:13.5px;font-weight:500}
+.driver-nm em{font-style:normal;color:var(--ink-3);font-size:12px;margin-left:7px;font-weight:400}
+.driver-v{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.dbar{height:22px;background:var(--card);border:1px solid var(--line);border-radius:5px;position:relative;overflow:hidden}
+.dbar .md{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-2);z-index:2}
+.dbar i{position:absolute;top:0;bottom:0;transition:width .7s cubic-bezier(.16,1,.3,1)}
+.dbar .tg{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:10.5px;color:var(--ink-2);z-index:3}
+
+.faq-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px}
+.faq-i{border-bottom:1px solid var(--line)}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;background:none;border:none;text-align:left;font-size:17.5px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.faq-q .pm{color:var(--ink-3);font-size:20px;transition:transform .22s;flex-shrink:0}
+.faq-i.open .pm{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--ink-2);font-size:15px;line-height:1.65}
+.faq-i.open .faq-a{max-height:340px;padding-bottom:22px}
+
+.news{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.news form{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.news input[type=email]{flex:1;min-width:230px;padding:14px 18px;border-radius:100px;border:1.5px solid var(--line-2);background:var(--card);font-family:inherit;font-size:15px;color:var(--ink)}
+.news input[type=email]:focus{border-color:var(--ink);outline:none}
+.news input[type=email].bad{border-color:var(--red)}
+.hp-field{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.msg{margin-top:12px;font-size:13.5px;min-height:20px}
+.msg.err{color:var(--red)}
+.msg.ok{color:var(--green)}
+
+@media(max-width:1040px){
+  .hero-grid,.heat-wrap,.cols2,.tools,.faq-grid,.news{grid-template-columns:1fr}
+  .chart-grid{grid-template-columns:1fr}
+  .readout{position:static}
+  .cols2{gap:40px}
+}
+@media(max-width:560px){
+  .games{grid-template-columns:1fr}
+  .ov-body{padding:20px 18px 60px}
+  .dstats{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<a href="#main" class="skip">Skip to content</a>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a href="/" class="brand" aria-label="Gridiron home">
+      <span class="mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="4.5" height="8" rx="1.2" fill="#0d0d0d"/><rect x="9.75" y="8" width="4.5" height="13" rx="1.2" fill="#0d0d0d"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.2" fill="#0d0d0d"/></svg></span>
+      Gridiron
+    </a>
+    <ul class="nav-links">
+      <li><a href="#board">The board</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+      <li><a href="#tendencies">Tendencies</a></li>
+      <li><a href="#ratings">Ratings</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="#board" class="btn btn-dark btn-sm">See this week</a>
+      <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<div class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="marquee" id="marquee"></div>
+    <canvas id="stars"></canvas>
+    <div class="hero-veil"></div>
+  </div>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="bar"></span><span class="label">An honest prediction model</span></div>
+      <h1 class="h-xl">Every game, <span class="hl">priced by the numbers.</span></h1>
+      <p class="lede">Ten seasons of play-by-play behind one board. Open any game to see twenty thousand simulations, the numbers that moved the pick, and how often the model is actually right.</p>
+      <div class="hero-cta">
+        <a href="#board" class="btn btn-lime">See this week's board <span aria-hidden="true">→</span></a>
+        <a href="#evidence" class="btn btn-ghost">How we know it works</a>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="hp-head"><span><span class="dot"></span><span id="hp-week">loading</span></span><span id="hp-count"></span></div>
+      <div class="hp-body" id="hp-body"></div>
+    </div>
+  </div>
+</div>
+
+<section style="padding-top:44px">
+  <div class="wrap stat-strip">
+    <div class="stat"><div class="v" id="k-acc">—</div><div class="l">Accuracy on games the model never trained on</div></div>
+    <div class="stat"><div class="v" id="k-veg">—</div><div class="l">Vegas closing line, same games</div></div>
+    <div class="stat"><div class="v" id="k-plays">—</div><div class="l">Plays analysed, 2015 to 2025</div></div>
+    <div class="stat"><div class="v">$0</div><div class="l">Free, no account, nothing to sell you</div></div>
+  </div>
+</section>
+
+<section id="board" style="padding-top:34px">
+  <div class="wrap">
+    <div class="board-bar">
+      <div>
+        <span class="label" id="board-label">—</span>
+        <h2 class="h-lg" style="margin-top:12px">The board</h2>
+      </div>
+      <div class="seg" id="seg" role="group" aria-label="Sort games">
+        <button data-sort="time" class="on">By kickoff</button>
+        <button data-sort="conf">Most confident</button>
+        <button data-sort="upset">Upset picks</button>
+      </div>
+    </div>
+    <div class="games" id="games"></div>
+  </div>
+</section>
+
+<section id="evidence" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">● Evidence</span>
+      <h2 class="h-lg">We show the working.</h2>
+      <p class="lede" style="margin-top:16px">Anyone can claim an accuracy number. These three charts are the ones that actually matter, drawn from four seasons the model was never trained on.</p>
+    </div>
+    <div class="chart-grid">
+      <div class="chart">
+        <h3>Is it calibrated?</h3>
+        <p class="cap">When the model says 70%, does it win 70% of the time? Points on the diagonal mean yes.</p>
+        <canvas id="c-cal" height="300" role="img" aria-label="Calibration chart comparing predicted win probability against actual win rate"></canvas>
+        <div class="foot"><span>predicted →</span><span>↑ actual</span></div>
+        <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in">
+          <p>Every held-out prediction is dropped into a 10-point bucket. For each bucket we compare the average predicted probability against the share that actually won.</p>
+          <p>A perfectly calibrated model sits on the diagonal. Ours tracks it closely where there's real sample size — the <code>0.75</code> bucket predicted 74.7% and won 75.3%. The lowest bucket has only 20 games, so it bounces around.</p>
+        </div></div></div>
+      </div>
+      <div class="chart">
+        <h3>Model vs the market</h3>
+        <p class="cap">Accuracy by season against Vegas and against always picking the home team.</p>
+        <canvas id="c-season" height="300" role="img" aria-label="Bar chart of model, Vegas and baseline accuracy by season"></canvas>
+        <div class="foot"><span id="c-season-legend"></span></div>
+        <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in">
+          <p>Walk-forward testing: to score 2024, the model trains only on 2015–2023 and predicts 2024 cold. No future information ever leaks backward.</p>
+          <p>Vegas is scored on the same games by converting the closing spread to a win probability. It wins every season — that gap is expected and we don't hide it.</p>
+        </div></div></div>
+      </div>
+      <div class="chart">
+        <h3>What the model leans on</h3>
+        <p class="cap">Each feature's influence, measured as its coefficient times its spread across real games.</p>
+        <canvas id="c-weights" height="300" role="img" aria-label="Bar chart of feature importance in the game prediction model"></canvas>
+        <div class="foot"><span>influence on the pick</span></div>
+        <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in">
+          <p>The model is a logistic regression, so influence is <code>|coefficient × standard deviation|</code> — how much a feature actually swings predictions across real matchups.</p>
+          <p>Elo dominates because it compresses every past result into one number. The efficiency stats then adjust for recent form.</p>
+        </div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tendencies">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">● Play-calling tendencies</span>
+      <h2 class="h-lg">What does an offence <span class="hl">actually do</span> here?</h2>
+      <p class="lede" style="margin-top:16px">Every down and distance, coloured by the most likely call. Click any square to see the full split and how it compares with what teams really did.</p>
+    </div>
+    <div class="heat-wrap">
+      <div class="heat">
+        <div class="heat-grid" id="heat" role="group" aria-label="Play call heatmap by down and distance"></div>
+        <div class="heat-legend">
+          <span><i style="background:#2f7d4f"></i>Run</span>
+          <span><i style="background:#2f5fe0"></i>Pass</span>
+          <span><i style="background:#c98a10"></i>Punt</span>
+          <span><i style="background:#8b4bc7"></i>Field goal</span>
+          <span style="color:var(--ink-3)">stronger colour = more predictable</span>
+        </div>
+      </div>
+      <div class="readout">
+        <div class="situ" id="ro-situ">2nd &amp; 3</div>
+        <div class="sub" id="ro-sub">from the opponent's 40, tied, mid-game</div>
+        <div class="bars" id="ro-bars"></div>
+        <div class="cmp">
+          <div class="hd">What teams actually did</div>
+          <div class="bars" id="ro-emp"></div>
+          <div class="howto"><button><span class="cv">▸</span>Why they can differ</button><div class="bd"><div class="in">
+            <p>The model bar is for one exact situation — this field position, this score, this clock. The league bar pools every play at that down and distance across ten seasons.</p>
+            <p>So they should be close but rarely identical. A big gap usually means field position or the clock is doing real work.</p>
+          </div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">● Fourth down</span>
+      <h2 class="h-lg">The whole field, decided.</h2>
+      <p class="lede" style="margin-top:16px">Expected points for every option at every spot. Impossible choices are ruled out first — no 116-yard field goals here.</p>
+    </div>
+    <div class="chart-grid" style="grid-template-columns:1.4fr .6fr">
+      <div class="chart">
+        <h3>Recommended decision by field position</h3>
+        <p class="cap">Rows are yards to go, columns are yards from the opponent's end zone.</p>
+        <canvas id="c-fdmap" height="330" role="img" aria-label="Grid of recommended fourth down decisions by field position and distance"></canvas>
+        <div class="heat-legend" style="margin-top:14px">
+          <span style="color:#a8adb5"><i style="background:#1a9c63"></i>Go for it</span>
+          <span style="color:#a8adb5"><i style="background:#c98a10"></i>Punt</span>
+          <span style="color:#a8adb5"><i style="background:#8b4bc7"></i>Field goal</span>
+        </div>
+      </div>
+      <div class="chart">
+        <h3>The pieces behind it</h3>
+        <p class="cap">Measured rates, not assumptions.</p>
+        <canvas id="c-curves" height="330" role="img" aria-label="Curves showing fourth down conversion rate and field goal make rate by distance"></canvas>
+        <div class="foot"><span style="color:#d4f43c">— conversion</span><span style="color:#b07be0">— FG make</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="label">● Calculators</span>
+      <h2 class="h-lg">Try a situation.</h2>
+    </div>
+    <div class="tools">
+      <div class="tool">
+        <h3>Play call</h3>
+        <div class="sub">All four real options, with the league's actual rate beside it.</div>
+        <div class="fld"><label for="i-dn">Down <b id="v-dn">2</b></label><input type="range" id="i-dn" min="1" max="4" value="2"></div>
+        <div class="fld"><label for="i-ytg">Yards to go <b id="v-ytg">3</b></label><input type="range" id="i-ytg" min="1" max="25" value="3"></div>
+        <div class="fld"><label for="i-yl">Yards from end zone <b id="v-yl">60</b></label><input type="range" id="i-yl" min="1" max="99" value="60"></div>
+        <div class="fld"><label for="i-sd">Score differential <b id="v-sd">0</b></label><input type="range" id="i-sd" min="-21" max="21" value="0"></div>
+        <div class="fld"><label for="i-q">Time remaining <b id="v-q">Q2</b></label><input type="range" id="i-q" min="1" max="4" value="2"></div>
+        <div class="verdict">
+          <div class="vl">Most likely call</div>
+          <div class="vv"><span id="pc-val">—</span><span class="pill" id="pc-conf"></span></div>
+          <div class="bars" id="pc-bars" style="margin-top:16px"></div>
+          <div class="cmp"><div class="hd">League actual, same down &amp; distance</div><div class="bars" id="pc-emp"></div></div>
+        </div>
+      </div>
+      <div class="tool">
+        <h3>Fourth down</h3>
+        <div class="sub">Expected points for each legal option.</div>
+        <div class="fld"><label for="f-ytg">Yards to go <b id="fv-ytg">2</b></label><input type="range" id="f-ytg" min="1" max="25" value="2"></div>
+        <div class="fld"><label for="f-yl">Yards from end zone <b id="fv-yl">45</b></label><input type="range" id="f-yl" min="1" max="99" value="45"></div>
+        <div class="verdict">
+          <div class="vl">Recommendation</div>
+          <div class="vv"><span id="fd-val">—</span><span class="pill" id="fd-str"></span></div>
+          <div id="fd-rows" style="margin-top:14px"></div>
+          <div id="fd-cav"></div>
+          <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in" id="fd-exp"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ratings" style="padding-top:0">
+  <div class="wrap cols2">
+    <div>
+      <span class="label">● Power ratings</span>
+      <h2 class="h-md" style="margin:12px 0 12px">Elo, from scratch</h2>
+      <p style="color:var(--ink-2);font-size:15px">Margin-of-victory weighted, regressed each offseason. 1500 is league average. No borrowed rankings.</p>
+      <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in">
+        <p>Every team starts at <code>1500</code>. After each game the winner takes points from the loser, scaled by how surprising the result was: <code>change = K × mov × (result − expected)</code> with <code>K = 20</code>.</p>
+        <p>Expected result comes from the rating gap plus <code>55</code> points of home advantage, about 2.2 points of spread. Each offseason ratings pull 25% back toward 1500 for roster turnover.</p>
+      </div></div></div>
+      <div id="power" style="margin-top:20px"></div>
+    </div>
+    <div>
+      <span class="label">● Predictability</span>
+      <h2 class="h-md" style="margin:12px 0 12px">Who tips their hand</h2>
+      <p style="color:var(--ink-2);font-size:15px">On downs 1 to 3, how confidently the model can call run or pass before the snap. Higher means easier to read.</p>
+      <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in">
+        <p>Predictability is the average of <code>|p − 0.5| × 2</code> across a team's plays. Always-obvious offences score high; ones that keep defences guessing score low.</p>
+        <p>Fourth downs are excluded — punting on 4th-and-15 is not a tendency, it's just football.</p>
+      </div></div></div>
+      <div id="pred" style="margin-top:20px"></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+  <div class="wrap faq-grid">
+    <div>
+      <span class="label">● FAQ</span>
+      <h2 class="h-lg" style="margin-top:12px">Questions worth asking</h2>
+      <p class="lede" style="margin-top:16px">The things people ask before trusting a model. Short answers, no hedging.</p>
+    </div>
+    <div id="faq-list"></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="card" style="padding:44px 46px">
+      <div class="news">
+        <div>
+          <h2 class="h-md">Get the board each week</h2>
+          <p class="lede" style="font-size:16px;margin-top:12px">Every week's picks and what changed, in one short email. No spam, unsubscribe anytime.</p>
+        </div>
+        <div>
+          <form id="sub-form" novalidate>
+            <label for="sub-email" class="sr-only">Email address</label>
+            <input type="email" id="sub-email" name="email" placeholder="you@example.com" autocomplete="email" required aria-describedby="sub-msg">
+            <div class="hp-field" aria-hidden="true">
+              <label for="company">Company (leave blank)</label>
+              <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-lime" id="sub-btn">Sign up <span aria-hidden="true">→</span></button>
+          </form>
+          <div class="msg" id="sub-msg" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <div class="brand" style="color:#fff;margin-bottom:14px">
+          <span class="mk" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4.5" height="8" rx="1.2" fill="#0d0d0d"/><rect x="9.75" y="8" width="4.5" height="13" rx="1.2" fill="#0d0d0d"/><rect x="16.5" y="3" width="4.5" height="18" rx="1.2" fill="#0d0d0d"/></svg></span>
+          Gridiron
+        </div>
+        <p style="color:#8a8f97;font-size:14px;max-width:34ch">NFL predictions with the working shown. Built on open play-by-play data.</p>
+      </div>
+      <div class="foot-col"><h4>Explore</h4><ul>
+        <li><a href="#board">The board</a></li><li><a href="#evidence">Evidence</a></li>
+        <li><a href="#tendencies">Tendencies</a></li><li><a href="#ratings">Ratings</a></li></ul></div>
+      <div class="foot-col"><h4>Legal</h4><ul>
+        <li><a href="/privacy">Privacy policy</a></li><li><a href="/terms">Terms of use</a></li>
+        <li><a href="#" id="cookie-reopen">Cookie settings</a></li></ul></div>
+      <div class="foot-col"><h4>Data</h4><ul>
+        <li><a href="https://github.com/nflverse/nflreadpy" rel="noopener noreferrer" target="_blank">nflverse ↗</a></li>
+        <li><a href="/sitemap.xml">Sitemap</a></li><li><a href="/robots.txt">robots.txt</a></li></ul></div>
+    </div>
+    <div class="foot-base">
+      <span>Data: nflverse, CC-BY 4.0 · Logos: ESPN</span>
+      <span>Predictions, not guarantees. Not betting advice.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Game detail">
+  <div class="ov-bg" data-close></div>
+  <div class="ov-panel">
+    <div class="ov-top">
+      <div class="ov-nav">
+        <button id="prevG" aria-label="Previous game">‹</button>
+        <span id="gPos"></span>
+        <button id="nextG" aria-label="Next game">›</button>
+      </div>
+      <button data-close aria-label="Close">✕</button>
+    </div>
+    <div class="ov-body" id="ovBody"></div>
+  </div>
+</div>
+
+<div class="cookie" id="cookie" role="dialog" aria-live="polite" aria-label="Cookie consent">
+  <h4>A quick note on cookies</h4>
+  <p>This site needs no cookies to work, and we set none by default. If you allow it, we'll count anonymous page views to see which parts get used. No third parties, no advertising, no personal data.</p>
+  <div class="row">
+    <button class="btn btn-lime btn-sm" id="ck-accept">Allow analytics</button>
+    <button class="btn btn-ghost btn-sm" id="ck-reject">Essential only</button>
+    <a href="/privacy" class="btn btn-ghost btn-sm">Read policy</a>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const pct=x=>Math.round(x*100);
+const j=async(u,o)=>{const r=await fetch(u,o);return r.json()};
+const REDUCE=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const DPR=Math.min(devicePixelRatio||1,2);
+const LIME='#d4f43c';
+let GAMES=[],EV=null,SORT='time',CUR=-1;
+
+function wireHowto(root=document){
+  root.querySelectorAll('.howto>button').forEach(b=>{
+    if(b.dataset.w)return;b.dataset.w=1;
+    b.setAttribute('aria-expanded','false');
+    b.onclick=()=>{const o=b.parentElement.classList.toggle('open');b.setAttribute('aria-expanded',o)};
+  });
+}
+wireHowto();
+addEventListener('scroll',()=>$('#hdr').classList.toggle('stuck',scrollY>10));
+$('#burger').onclick=()=>{const n=$('.nav-links');const open=n.style.display==='flex';
+  n.style.cssText=open?'':'display:flex;position:absolute;top:74px;left:0;right:0;background:var(--paper);flex-direction:column;padding:20px 22px;gap:16px;border-bottom:1px solid var(--line)';
+  $('#burger').setAttribute('aria-expanded',!open)};
+
+function lum(hex){const c=(hex||'#888').replace('#','');
+  const v=[0,2,4].map(i=>parseInt(c.substr(i,2),16)/255).map(x=>x<=.03928?x/12.92:((x+.055)/1.055)**2.4);
+  return .2126*v[0]+.7152*v[1]+.0722*v[2]}
+function darken(hex,a){const c=hex.replace('#','');
+  return '#'+[0,2,4].map(i=>Math.round(parseInt(c.substr(i,2),16)*(1-a)).toString(16).padStart(2,'0')).join('')}
+/* On a light page the risk is the opposite of a dark one: pale primaries
+   (Chargers powder blue, Saints gold) wash out, so darken those instead. */
+function lighten(hex,a){const c=hex.replace('#','');
+  return '#'+[0,2,4].map(i=>{const v=parseInt(c.substr(i,2),16);
+    return Math.round(v+(255-v)*a).toString(16).padStart(2,'0')}).join('')}
+/* Back on a dark page, near-black primaries (Steelers, Jets, Raiders) are the
+   ones that vanish, so lift those instead of darkening pale ones. */
+function visible(p,s){let c=p||'#8fabff';
+  if(lum(c)<.055)c=(s&&lum(s)>=.10)?s:lighten(c,.5);
+  if(lum(c)<.055)c=lighten(c,.6);
+  return c}
+function teamColors(g){let a=visible(g.away_color,g.away_color2),h=visible(g.home_color,g.home_color2);
+  if(a.toLowerCase()===h.toLowerCase())h=visible(g.home_color2,null)!==a?visible(g.home_color2,null):lighten(h,.3);
+  return{a,h}}
+function logoImg(src,abbr,color,size,alt){
+  const fb=`this.replaceWith(Object.assign(document.createElement('span'),{className:'logofb',textContent:'${abbr}',style:'width:${size}px;height:${size}px;background:${color};font-size:${Math.round(size*.33)}px'}))`;
+  return `<img src="${src}" alt="${alt||abbr+' logo'}" loading="lazy" width="${size}" height="${size}" style="width:${size}px;height:${size}px" onerror="${fb}">`;
+}
+/* ---------- hero backdrop: drifting starfield + logo marquee ---------- */
+function starfield(){
+  const c=document.getElementById('stars');if(!c)return;
+  const x=c.getContext('2d');let W,H,pts,shoot=null,t=0;
+  function size(){const r=c.getBoundingClientRect();
+    W=c.width=Math.max(1,r.width*DPR);H=c.height=Math.max(1,r.height*DPR);
+    pts=Array.from({length:Math.round(r.width*r.height/9000)},()=>({
+      x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.3+.35)*DPR,
+      vx:(Math.random()-.5)*.055*DPR,vy:(Math.random()-.5)*.055*DPR,
+      a:Math.random()*.5+.15,tw:Math.random()*Math.PI*2}))}
+  size();addEventListener('resize',size);
+  if(REDUCE){ // draw one static frame and stop
+    pts.forEach(p=>{x.beginPath();x.arc(p.x,p.y,p.r,0,7);
+      x.fillStyle=`rgba(190,210,255,${p.a})`;x.fill()});return}
+  (function frame(){
+    x.clearRect(0,0,W,H);
+    for(const p of pts){
+      p.x+=p.vx;p.y+=p.vy;p.tw+=.012;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      const a=p.a*(.68+.32*Math.sin(p.tw));
+      x.beginPath();x.arc(p.x,p.y,p.r,0,7);
+      x.fillStyle=`rgba(190,210,255,${a})`;x.fill()}
+    // every so often, one streaks across — the small thing you notice on the
+    // second look rather than the first
+    if(!shoot&&Math.random()<0.0016)
+      shoot={x:Math.random()*W*.6,y:Math.random()*H*.45,len:0,life:0,
+             vx:(2.6+Math.random()*1.4)*DPR,vy:(.7+Math.random()*.5)*DPR};
+    if(shoot){
+      shoot.x+=shoot.vx;shoot.y+=shoot.vy;shoot.life++;
+      shoot.len=Math.min(90*DPR,shoot.len+5*DPR);
+      const a=Math.max(0,1-shoot.life/95);
+      const g=x.createLinearGradient(shoot.x,shoot.y,shoot.x-shoot.len,shoot.y-shoot.len*.28);
+      g.addColorStop(0,`rgba(212,244,60,${a*.85})`);g.addColorStop(1,'rgba(212,244,60,0)');
+      x.strokeStyle=g;x.lineWidth=1.6*DPR;x.lineCap='round';
+      x.beginPath();x.moveTo(shoot.x,shoot.y);
+      x.lineTo(shoot.x-shoot.len,shoot.y-shoot.len*.28);x.stroke();
+      if(shoot.life>95||shoot.x>W+120*DPR)shoot=null}
+    t++;requestAnimationFrame(frame)})();
+}
+async function buildMarquee(){
+  const el=document.getElementById('marquee');if(!el)return;
+  let teams;
+  try{teams=Object.entries(await j('/data/teams.json'))}catch(e){return}
+  teams=teams.filter(([k,v])=>v.logo);
+  const rows=[[],[],[]];
+  teams.forEach(([abbr,t],i)=>rows[i%3].push({abbr,...t}));
+  el.innerHTML=rows.map((row,i)=>{
+    // duplicated once so the -50% translate loops seamlessly
+    const cells=[...row,...row].map(t=>
+      `<img src="${t.logo}" alt="" loading="lazy" width="74" height="74"
+         onerror="this.style.visibility='hidden'">`).join('');
+    return `<div class="mrow r${i+1}">${cells}</div>`}).join('');
+}
+
+function setup(c,h){c.width=c.offsetWidth*DPR;c.height=h*DPR;const x=c.getContext('2d');x.scale(DPR,DPR);
+  return{x,W:c.offsetWidth,H:h}}
+
+function drawCalibration(){
+  const c=$('#c-cal');if(!c||!EV)return;const{x,W,H}=setup(c,300);
+  const pad={l:38,r:14,t:14,b:34},w=W-pad.l-pad.r,h=H-pad.t-pad.b;
+  const px=v=>pad.l+v*w, py=v=>pad.t+(1-v)*h;
+  x.strokeStyle='#22304d';x.lineWidth=1;x.font='10px "IBM Plex Mono",monospace';
+  for(let i=0;i<=4;i++){const v=i/4;
+    x.beginPath();x.moveTo(pad.l,py(v));x.lineTo(pad.l+w,py(v));x.stroke();
+    x.fillStyle='#8a8f97';x.textAlign='right';x.fillText((v*100)+'%',pad.l-7,py(v)+3);
+    x.textAlign='center';x.fillText((v*100)+'%',px(v),H-12)}
+  x.strokeStyle='#46587e';x.setLineDash([4,4]);x.beginPath();x.moveTo(px(0),py(0));x.lineTo(px(1),py(1));x.stroke();x.setLineDash([]);
+  const d=EV.game.calibration;
+  x.strokeStyle=LIME;x.lineWidth=2;x.beginPath();
+  d.forEach((p,i)=>{const X=px(p.predicted),Y=py(p.actual);i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();
+  d.forEach(p=>{const r=Math.max(3,Math.min(9,Math.sqrt(p.n)/3));
+    x.beginPath();x.arc(px(p.predicted),py(p.actual),r,0,7);
+    x.fillStyle=LIME;x.globalAlpha=.85;x.fill();x.globalAlpha=1;
+    x.strokeStyle='#080b12';x.lineWidth=1.5;x.stroke()});
+}
+function drawSeason(){
+  const c=$('#c-season');if(!c||!EV)return;const{x,W,H}=setup(c,300);
+  const d=EV.game.by_season,pad={l:38,r:12,t:14,b:38},w=W-pad.l-pad.r,h=H-pad.t-pad.b;
+  const lo=.45,hi=.78,py=v=>pad.t+(1-(v-lo)/(hi-lo))*h;
+  x.strokeStyle='#22304d';x.lineWidth=1;x.font='10px "IBM Plex Mono",monospace';
+  for(let v=.5;v<=.75;v+=.05){x.beginPath();x.moveTo(pad.l,py(v));x.lineTo(pad.l+w,py(v));x.stroke();
+    x.fillStyle='#8a8f97';x.textAlign='right';x.fillText(Math.round(v*100)+'%',pad.l-7,py(v)+3)}
+  const gw=w/d.length,bw=Math.min(18,gw/4.2);
+  const cols=[['baseline','#5d6b87'],['model',LIME],['vegas','#6d92f5']];
+  d.forEach((s,i)=>{const cx=pad.l+gw*(i+.5);
+    cols.forEach(([k,col],ci)=>{const X=cx+(ci-1)*(bw+4)-bw/2,Y=py(s[k]);
+      x.fillStyle=col;x.fillRect(X,Y,bw,pad.t+h-Y);
+      x.font='9px "IBM Plex Mono",monospace';x.textAlign='center';
+      x.fillText(Math.round(s[k]*100),X+bw/2,Y-5)});
+    x.fillStyle='#a8adb5';x.font='11px "IBM Plex Mono",monospace';x.textAlign='center';x.fillText(s.season,cx,H-12)});
+  $('#c-season-legend').innerHTML=`<span style="color:#8a8f97">■ home</span> <span style="color:${LIME}">■ model</span> <span style="color:#6d92f5">■ vegas</span>`;
+}
+function drawWeights(){
+  const c=$('#c-weights');if(!c||!EV)return;const{x,W,H}=setup(c,300);
+  const d=EV.game.weights.slice(0,8),pad={l:118,r:40,t:8,b:8};
+  const w=W-pad.l-pad.r,rh=(H-pad.t-pad.b)/d.length,mx=Math.max(...d.map(v=>v.std_impact));
+  d.forEach((f,i)=>{const y=pad.t+rh*i+rh*.16,bh=rh*.62,bw=(f.std_impact/mx)*w;
+    x.fillStyle=i===0?LIME:'#4a5f8c';x.fillRect(pad.l,y,bw,bh);
+    x.fillStyle='#a8adb5';x.font='11px "Plus Jakarta Sans",sans-serif';x.textAlign='right';
+    x.fillText(f.label.length>18?f.label.slice(0,17)+'…':f.label,pad.l-9,y+bh*.72);
+    x.fillStyle='#8a8f97';x.font='10px "IBM Plex Mono",monospace';x.textAlign='left';
+    x.fillText(f.std_impact.toFixed(2),pad.l+bw+6,y+bh*.72)});
+}
+function drawFdMap(){
+  const c=$('#c-fdmap');if(!c||!EV)return;const{x,W,H}=setup(c,330);
+  const g=EV.fourth_down.grid;
+  const yls=[...new Set(g.map(r=>r.yardline_100))].sort((a,b)=>a-b);
+  const dists=[...new Set(g.map(r=>r.ydstogo))].sort((a,b)=>a-b);
+  const pad={l:34,r:8,t:8,b:32},cw=(W-pad.l-pad.r)/yls.length,ch=(H-pad.t-pad.b)/dists.length;
+  const COL={go:'#1a9c63',punt:'#c98a10',field_goal:'#8b4bc7'};
+  g.forEach(r=>{const i=yls.indexOf(r.yardline_100),jx=dists.indexOf(r.ydstogo);
+    const a=r.margin==null?.85:Math.max(.32,Math.min(1,.35+r.margin/2.2));
+    x.globalAlpha=a;x.fillStyle=COL[r.decision]||'#555';
+    x.fillRect(pad.l+cw*i+1,pad.t+ch*jx+1,cw-2,ch-2);x.globalAlpha=1});
+  x.fillStyle='#8a8f97';x.font='9.5px "IBM Plex Mono",monospace';x.textAlign='center';
+  yls.forEach((y,i)=>{if(i%2===0)x.fillText(y,pad.l+cw*(i+.5),H-18)});
+  x.textAlign='right';
+  dists.forEach((d,i)=>x.fillText(d,pad.l-6,pad.t+ch*(i+.62)));
+  x.textAlign='center';x.fillStyle='#6c7079';x.font='10px "IBM Plex Mono",monospace';
+  x.fillText('yards from opponent end zone →',W/2,H-4);
+}
+function drawCurves(){
+  const c=$('#c-curves');if(!c||!EV)return;const{x,W,H}=setup(c,330);
+  const conv=EV.fourth_down.conversion.filter(d=>d.ydstogo<=15);
+  const fg=EV.fourth_down.fg.filter(d=>d.distance>=20&&d.distance<=60);
+  const pad={l:34,r:12,t:12,b:32},w=W-pad.l-pad.r,h=H-pad.t-pad.b;
+  const py=v=>pad.t+(1-v)*h;
+  x.strokeStyle='#22304d';x.lineWidth=1;x.font='10px "IBM Plex Mono",monospace';
+  for(let v=0;v<=1;v+=.25){x.beginPath();x.moveTo(pad.l,py(v));x.lineTo(pad.l+w,py(v));x.stroke();
+    x.fillStyle='#8a8f97';x.textAlign='right';x.fillText(Math.round(v*100)+'%',pad.l-6,py(v)+3)}
+  const line=(pts,fx,col)=>{x.strokeStyle=col;x.lineWidth=2.2;x.beginPath();
+    pts.forEach((p,i)=>{const X=pad.l+fx(p)*w,Y=py(p.rate);i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();
+    pts.forEach(p=>{x.beginPath();x.arc(pad.l+fx(p)*w,py(p.rate),2.4,0,7);x.fillStyle=col;x.fill()})};
+  line(conv,p=>(p.ydstogo-1)/14,LIME);
+  line(fg,p=>(p.distance-20)/40,'#b07be0');
+  x.fillStyle='#6c7079';x.font='10px "IBM Plex Mono",monospace';x.textAlign='center';
+  x.fillText('yards to go  ·  FG distance',W/2,H-8);
+}
+
+const PC_COL={run:'#2f7d4f',pass:'#2f5fe0',punt:'#c98a10',field_goal:'#8b4bc7'};
+const PC_NAME={run:'Run',pass:'Pass',punt:'Punt',field_goal:'Field goal'};
+function buildHeat(){
+  if(!EV)return;const g=EV.playcall.grid,el=$('#heat');
+  const dists=[...Array(20)].map((_,i)=>i+1);
+  el.style.gridTemplateColumns=`30px repeat(${dists.length},1fr)`;
+  let html=`<div class="heat-axis"></div>`+dists.map(d=>`<div class="heat-axis">${d}</div>`).join('');
+  [1,2,3,4].forEach(dn=>{
+    html+=`<div class="heat-axis" style="font-weight:600;color:var(--ink)">${dn}</div>`;
+    dists.forEach(d=>{
+      const cell=g.find(r=>r.down===dn&&r.ydstogo===d);
+      if(!cell){html+='<div></div>';return}
+      const best=['run','pass','punt','field_goal'].reduce((a,b)=>cell[a]>cell[b]?a:b);
+      const a=Math.max(.28,Math.min(1,cell[best]));
+      html+=`<button class="heat-cell" data-dn="${dn}" data-d="${d}"
+        style="background:${PC_COL[best]};opacity:${a}"
+        aria-label="Down ${dn}, ${d} to go: mostly ${PC_NAME[best]}, ${pct(cell[best])} percent"></button>`;
+    })});
+  el.innerHTML=html;
+  el.querySelectorAll('.heat-cell').forEach(b=>b.onclick=()=>{
+    el.querySelectorAll('.heat-cell').forEach(o=>o.classList.remove('sel'));
+    b.classList.add('sel');selectCell(+b.dataset.dn,+b.dataset.d)});
+  const first=el.querySelector('[data-dn="2"][data-d="3"]');
+  if(first)first.classList.add('sel');
+  selectCell(2,3);
+}
+function barSet(target,probs,order){
+  $(target).innerHTML=order.filter(k=>probs[k]>0.004).map(k=>`
+    <div class="barrow"><div class="nm">${PC_NAME[k]}</div>
+      <div class="tr"><i style="width:${pct(probs[k])}%;background:${PC_COL[k]}"></i></div>
+      <div class="vv">${pct(probs[k])}%</div></div>`).join('')||'<div style="font-size:13px;color:var(--ink-3)">No data here.</div>';
+}
+async function selectCell(dn,d){
+  const ord=['run','pass','punt','field_goal'];
+  $('#ro-situ').textContent=`${['1st','2nd','3rd','4th'][dn-1]} & ${d}`;
+  try{
+    const r=await j('/api/playcall',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({down:dn,ydstogo:d,yardline_100:60,score_differential:0,game_seconds_remaining:2400})});
+    barSet('#ro-bars',r.probabilities,ord);
+    if(r.empirical){barSet('#ro-emp',r.empirical,ord);
+      $('#ro-emp').insertAdjacentHTML('beforeend',
+        `<div style="font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:6px">${r.empirical.n.toLocaleString()} plays, 2015–2025</div>`)}
+    else $('#ro-emp').innerHTML='<div style="font-size:13px;color:var(--ink-3)">Too few plays on record here.</div>';
+  }catch(e){$('#ro-bars').innerHTML='<div style="font-size:13px;color:var(--red)">Could not reach the model.</div>'}
+}
+
+function sortGames(l){const c=[...l];
+  if(SORT==='conf')c.sort((a,b)=>b.confidence-a.confidence);
+  else if(SORT==='upset')c.sort((a,b)=>((b.pick!==b.home)-(a.pick!==a.home))||b.confidence-a.confidence);
+  else c.sort((a,b)=>(a.gameday||'').localeCompare(b.gameday||''));
+  return c}
+function renderBoard(){
+  const el=$('#games');
+  el.innerHTML=sortGames(GAMES).map(g=>{
+    const{a,h}=teamColors(g),hw=g.home_win_prob>=.5;
+    const spr=g.spread!=null?(g.spread>0?`${g.home} -${g.spread}`:`${g.home} +${-g.spread}`):'PK';
+    const row=(ab,logo,p,win,col,name)=>`<div class="gc-team ${win?'':'lo'}">
+      ${logoImg(logo,ab,col,32,name+' logo')}
+      <div class="ab">${ab}</div>
+      <div class="tr"><i data-w="${pct(p)}" style="background:${win?col:'var(--line-2)'}"></i></div>
+      <div class="pc">${pct(p)}%</div></div>`;
+    return `<button class="gcard" data-id="${g.id}">
+      <div class="strip"><i style="background:${a}"></i><i style="background:${h}"></i></div>
+      <div class="gc-in">
+        <div class="gc-top"><span>${g.gameday||''}</span><span class="gc-spread">${spr}</span></div>
+        ${row(g.away,g.away_logo,g.away_win_prob,!hw,a,g.away_name)}
+        ${row(g.home,g.home_logo,g.home_win_prob,hw,h,g.home_name)}
+        <div class="gc-foot"><span>pick <b>${g.pick}</b> · ${pct(g.confidence)}%</span><span class="go">Full breakdown →</span></div>
+      </div></button>`}).join('');
+  requestAnimationFrame(()=>el.querySelectorAll('.gc-team i').forEach(i=>i.style.width=i.dataset.w+'%'));
+  el.querySelectorAll('.gcard').forEach(c=>c.onclick=()=>openGame(c.dataset.id));
+}
+
+function fmt(v){return Math.abs(v)>=100?Math.round(v):(+v).toFixed(2)}
+function openGame(id){
+  const list=sortGames(GAMES);CUR=list.findIndex(x=>x.id===id);
+  const g=list[CUR];if(!g)return;
+  $('#gPos').textContent=`${CUR+1} / ${list.length}`;
+  const{a,h}=teamColors(g),s=g.simulation;
+  const mxc=Math.max(...g.drivers.map(x=>Math.abs(x.contribution)))||1;
+  const drivers=g.drivers.map(d=>{
+    const fh=d.favors===g.home,mag=Math.min(50,Math.abs(d.contribution)/mxc*50);
+    return `<div class="driver">
+      <div class="driver-t"><div class="driver-nm">${d.label}<em>${d.blurb}</em></div>
+        <div class="driver-v">${g.away} ${fmt(d.away_value)} · ${g.home} ${fmt(d.home_value)}</div></div>
+      <div class="dbar"><div class="md"></div>
+        <i style="${fh?`left:50%;width:${mag}%;background:${h}`:`right:50%;width:${mag}%;background:${a}`}"></i>
+        <span class="tg" style="${fh?'right:8px':'left:8px'}">favours ${d.favors}</span></div></div>`}).join('');
+  $('#ovBody').innerHTML=`
+    <div class="vs">
+      <div class="vs-t">${logoImg(g.away_logo,g.away,a,72,g.away_name+' logo')}<div class="nk">${g.away_nick}</div><div class="el">Elo ${g.away_elo}</div></div>
+      <div class="vs-at">at</div>
+      <div class="vs-t">${logoImg(g.home_logo,g.home,h,72,g.home_name+' logo')}<div class="nk">${g.home_nick}</div><div class="el">Elo ${g.home_elo}</div></div>
+    </div>
+    <div class="wp"><span class="a" style="width:${pct(g.away_win_prob)}%;background:${a}">${pct(g.away_win_prob)}%</span>
+      <span class="h" style="width:${pct(g.home_win_prob)}%;background:${h}">${pct(g.home_win_prob)}%</span></div>
+    <div class="wp-l"><span>${g.away} win probability</span><span>${g.home} win probability</span></div>
+    <div class="dsec"><h3><span class="n">01</span> Twenty thousand simulated finals</h3>
+      <div class="card" style="padding:16px"><canvas id="dcv" height="330" role="img" aria-label="Distribution of 20,000 simulated final margins"></canvas></div>
+      <div class="dstats">
+        <div class="dstat"><div class="v">${s.expected_margin>0?'+':''}${s.expected_margin}</div><div class="l">AVG MARGIN</div></div>
+        <div class="dstat"><div class="v">${pct(s.home_win_rate)}%</div><div class="l">${g.home} WINS</div></div>
+        <div class="dstat"><div class="v">${s.p10_margin>0?'+':''}${s.p10_margin} / ${s.p90_margin>0?'+':''}${s.p90_margin}</div><div class="l">10–90% RANGE</div></div>
+      </div>
+      <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in">
+        <p>The model gives one number: <code>${pct(g.home_win_prob)}%</code>. That hides how wide real outcomes are, so we convert it to a scoring margin and replay the game 20,000 times.</p>
+        <p>NFL final margins scatter around their expectation with a standard deviation near <code>13.5</code> points. Inverting the win probability gives an expected margin of <code>${s.expected_margin>0?'+':''}${s.expected_margin}</code>, and each run draws from that.</p>
+        <p>A ${pct(Math.max(g.home_win_prob,g.away_win_prob))}% favourite still loses about ${pct(Math.min(g.home_win_prob,g.away_win_prob))} times in 100.</p>
+      </div></div></div></div>
+    <div class="dsec"><h3><span class="n">02</span> What moved the pick</h3>${drivers}
+      <div class="howto"><button><span class="cv">▸</span>How this is calculated</button><div class="bd"><div class="in">
+        <p>The model is a logistic regression, so each feature's push is exactly <code>coefficient × (home − away)</code>. Bars are scaled to the biggest push in this game.</p>
+        <p>Every input is a trailing 8-game average taken before this week, so recent form drives it rather than ancient history.</p>
+        <p>They can disagree — a team can lead most efficiency numbers and still be an underdog if the Elo gap is wide enough.</p>
+      </div></div></div></div>
+    <div class="dsec"><h3><span class="n">03</span> Market comparison</h3>
+      <div class="dstats">
+        <div class="dstat"><div class="v">${g.spread!=null?(g.spread>0?`${g.home} -${g.spread}`:`${g.home} +${-g.spread}`):'PK'}</div><div class="l">CLOSING SPREAD</div></div>
+        <div class="dstat"><div class="v">${g.total??'—'}</div><div class="l">TOTAL</div></div>
+        <div class="dstat"><div class="v">${g.roof||'—'}</div><div class="l">${(g.stadium||'VENUE').toUpperCase().slice(0,20)}</div></div>
+      </div>
+      <div class="howto"><button><span class="cv">▸</span>Why we don't bet this</button><div class="bd"><div class="in">
+        <p>Against the closing spread this model hits <code>49.8%</code>, under the <code>52.4%</code> needed to break even at -110. It picks winners well; it does not beat the market's line.</p>
+        <p>That's expected. Closing lines absorb enormous amounts of information and no public model reliably beats them.</p>
+      </div></div></div></div>`;
+  $('#ov').classList.add('on');document.body.classList.add('locked');
+  wireHowto($('#ovBody'));drawDistro(s,a,h,g);
+}
+function drawDistro(s,ca,ch,g){
+  const c=$('#dcv');if(!c)return;const{x,W,H}=setup(c,330);
+  const hs=s.histogram,n=hs.centers.length,mx=Math.max(...hs.counts);
+  const pad={l:8,t:12,b:42},bw=(W-pad.l*2)/n,floor=H-pad.b;
+  let prog=REDUCE?1:0;
+  (function frame(){
+    x.clearRect(0,0,W,H);
+    const zi=hs.centers.findIndex(v=>v>=0),zx=pad.l+bw*zi;
+    x.strokeStyle='rgba(238,242,248,.3)';x.setLineDash([4,4]);x.lineWidth=1;
+    x.beginPath();x.moveTo(zx,pad.t);x.lineTo(zx,floor);x.stroke();x.setLineDash([]);
+    for(let i=0;i<n;i++){const hh=(hs.counts[i]/mx)*(floor-pad.t)*prog;
+      x.fillStyle=hs.centers[i]>0?ch:ca;x.globalAlpha=.88;
+      x.fillRect(pad.l+bw*i+bw*.12,floor-hh,bw*.76,hh)}
+    x.globalAlpha=1;
+    x.strokeStyle='rgba(238,242,248,.18)';x.beginPath();x.moveTo(pad.l,floor);x.lineTo(W-pad.l,floor);x.stroke();
+    x.fillStyle='#8b97ad';x.font='10.5px "IBM Plex Mono",monospace';x.textAlign='center';
+    [0,Math.floor(n/4),Math.floor(n/2),Math.floor(3*n/4),n-1].forEach(i=>{
+      const v=hs.centers[i];x.fillText((v>0?'+':'')+v,pad.l+bw*i+bw/2,floor+17)});
+    x.fillStyle='#68748d';x.font='10px "IBM Plex Mono",monospace';
+    x.fillText(`← ${g.away} wins`,pad.l+bw*(zi/2),floor+33);
+    x.fillText(`${g.home} wins →`,pad.l+bw*(zi+(n-zi)/2),floor+33);
+    if(prog<1){prog=Math.min(1,prog+.06);requestAnimationFrame(frame)}
+  })();
+}
+function closeOv(){$('#ov').classList.remove('on');document.body.classList.remove('locked')}
+$$('[data-close]').forEach(e=>e.onclick=closeOv);
+function stepGame(d){const l=sortGames(GAMES);if(CUR<0)return;
+  $('.ov-panel').scrollTop=0;openGame(l[(CUR+d+l.length)%l.length].id)}
+$('#prevG').onclick=()=>stepGame(-1);$('#nextG').onclick=()=>stepGame(1);
+addEventListener('keydown',e=>{if(!$('#ov').classList.contains('on'))return;
+  if(e.key==='Escape')closeOv();if(e.key==='ArrowLeft')stepGame(-1);if(e.key==='ArrowRight')stepGame(1)});
+
+function animate(sel){const el=$(sel);if(!el)return;
+  new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){
+    e.target.querySelectorAll('.tr i').forEach(i=>i.style.width=i.dataset.w+'%');o.unobserve(e.target)}}),
+    {threshold:.12}).observe(el)}
+async function loadRanks(){
+  const p=await j('/data/power_rankings.json');
+  const mx=Math.max(...p.map(t=>t.elo)),mn=Math.min(...p.map(t=>t.elo));
+  $('#power').innerHTML=p.slice(0,12).map(t=>`<div class="rrow ${t.rank<=3?'t3':''}">
+    <div class="n">${String(t.rank).padStart(2,'0')}</div>${logoImg(t.logo,t.team,visible(t.color,null),26,t.name+' logo')}
+    <div class="nm">${t.name}</div><div class="tr"><i data-w="${((t.elo-mn)/(mx-mn))*100}"></i></div>
+    <div class="vv">${t.elo}</div></div>`).join('');
+  animate('#power');
+  const q=await j('/data/playcall_predictability.json');
+  const s=[...q].sort((a,b)=>b.predictability-a.predictability),m2=Math.max(...q.map(t=>t.predictability));
+  const row=t=>`<div class="rrow"><div class="n"></div>${logoImg(t.logo,t.team,'#8a8f97',26,t.name+' logo')}
+    <div class="nm">${t.name}</div><div class="tr"><i data-w="${(t.predictability/m2)*100}"></i></div>
+    <div class="vv">${t.predictability.toFixed(2)}</div></div>`;
+  $('#pred').innerHTML=`<div class="label" style="margin-bottom:8px">Most predictable</div>`+s.slice(0,5).map(row).join('')
+    +`<div class="label" style="margin:18px 0 8px">Least predictable</div>`+s.slice(-5).reverse().map(row).join('');
+  animate('#pred');
+}
+
+const QT={1:3300,2:2400,3:1500,4:600};
+let pcT;
+async function runPC(){
+  ['dn','ytg','yl','sd'].forEach(k=>$('#v-'+k).textContent=$('#i-'+k).value);
+  $('#v-q').textContent='Q'+$('#i-q').value;
+  const ord=['run','pass','punt','field_goal'];
+  try{
+    const r=await j('/api/playcall',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({down:+$('#i-dn').value,ydstogo:+$('#i-ytg').value,yardline_100:+$('#i-yl').value,
+        score_differential:+$('#i-sd').value,game_seconds_remaining:QT[$('#i-q').value]})});
+    $('#pc-val').textContent=PC_NAME[r.predicted].toUpperCase();
+    const p=$('#pc-conf');p.textContent=r.confidence>.65?'clear':'close call';
+    p.className='pill'+(r.confidence>.65?'':' warn');
+    barSet('#pc-bars',r.probabilities,ord);
+    if(r.empirical){barSet('#pc-emp',r.empirical,ord);
+      $('#pc-emp').insertAdjacentHTML('beforeend',
+        `<div style="font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:6px">${r.empirical.n.toLocaleString()} plays on record</div>`)}
+    else $('#pc-emp').innerHTML='<div style="font-size:13px;color:var(--ink-3)">Too few plays on record here.</div>';
+  }catch(e){$('#pc-val').textContent='—'}
+}
+['i-dn','i-ytg','i-yl','i-sd','i-q'].forEach(id=>$('#'+id).addEventListener('input',()=>{clearTimeout(pcT);pcT=setTimeout(runPC,90)}));
+
+let fdT;
+async function runFD(){
+  $('#fv-ytg').textContent=$('#f-ytg').value;$('#fv-yl').textContent=$('#f-yl').value;
+  try{
+    const d=await j('/api/fourth-down',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ydstogo:+$('#f-ytg').value,yardline_100:+$('#f-yl').value})});
+    const L={go:'GO FOR IT',punt:'PUNT',field_goal:'FIELD GOAL'};
+    $('#fd-val').textContent=L[d.recommended_decision];
+    const s=$('#fd-str');s.textContent=d.strength;s.className='pill'+(d.strength==='close call'?' warn':'');
+    const mA=Math.max(.5,...Object.values(d.expected_points).map(v=>Math.abs(v)));
+    $('#fd-rows').innerHTML=['go','field_goal','punt'].map(k=>{
+      if(!(k in d.expected_points)){
+        const why=k==='field_goal'?`${d.fg_distance_if_attempted}yd — too far`:'inside the 28';
+        return `<div class="eprow na"><div class="d">${L[k]}</div><div class="tr"><div class="md"></div></div><div class="vv">${why}</div></div>`}
+      const v=d.expected_points[k],w=(Math.abs(v)/mA)*50;
+      const st=v>=0?`left:50%;width:${w}%;background:var(--green)`:`right:50%;width:${w}%;background:var(--red)`;
+      return `<div class="eprow ${k===d.recommended_decision?'best':''}"><div class="d">${L[k]}</div>
+        <div class="tr"><div class="md"></div><i style="${st}"></i></div>
+        <div class="vv">${v>=0?'+':''}${v.toFixed(2)}</div></div>`}).join('');
+    $('#fd-cav').innerHTML=d.caveats.length?`<div class="caveat">${d.caveats.join(' ')}</div>`:'';
+    const e=d.explain;let html='<p>Each option is priced in expected points from measured rates, not a black box.</p>';
+    if(e.go)html+=`<p><b>Go:</b> teams convert 4th &amp; ${$('#f-ytg').value} about <code>${pct(e.go.convert_prob)}%</code> of the time${e.go.sample_size?` (${e.go.sample_size} tries)`:''}. Success is worth <code>${e.go.ep_if_converted}</code>, failure <code>${e.go.ep_if_failed}</code> → <code>${e.go.formula}</code>.</p>`;
+    if(e.field_goal)html+=`<p><b>Field goal:</b> a <code>${e.field_goal.attempt_distance}yd</code> try goes in <code>${pct(e.field_goal.make_prob)}%</code> of the time${e.field_goal.sample_size?` (${e.field_goal.sample_size} kicks)`:''} → <code>${e.field_goal.formula}</code>.</p>`;
+    else html+=`<p><b>Field goal:</b> ruled out — from here it's a <code>${d.fg_distance_if_attempted}yd</code> attempt, and the longest ever made is 66.</p>`;
+    if(e.punt)html+=`<p><b>Punt:</b> nets <code>${e.punt.net_distance}yd</code> on average, handing over the ball for <code>${e.punt.formula}</code>.</p>`;
+    else html+=`<p><b>Punt:</b> ruled out — nobody punts from inside the opponent's 28.</p>`;
+    $('#fd-exp').innerHTML=html;
+  }catch(e){$('#fd-val').textContent='—'}
+}
+['f-ytg','f-yl'].forEach(id=>$('#'+id).addEventListener('input',()=>{clearTimeout(fdT);fdT=setTimeout(runFD,90)}));
+
+const FAQ=[
+["Is this better than just picking the favourite?","The home team wins 54% of the time. Vegas picks 67%. This model lands at 63.8% on games it never trained on — real signal from team form and Elo, not a coin flip with extra steps."],
+["Can I bet with this?","No, and we won't pretend otherwise. Against the closing spread the model hits 49.8%, below the 52.4% break-even at standard odds. It picks winners well but does not beat the market's line."],
+["Where does the data come from?","nflverse, the open NFL play-by-play project. Ten seasons, 532,000 plays, CC-BY licensed. Nothing is scraped, synthesised, or hand-entered."],
+["Why does the play-call tool sometimes disagree with the league average?","Because it conditions on the exact situation. The league bar pools every play at a down and distance; the model bar accounts for field position, score, and clock too. On 4th-and-20 it says punt — an earlier version said pass, which was flat wrong."],
+["What is the simulation actually doing?","Converting the win probability into an expected scoring margin, then replaying the game 20,000 times with realistic NFL variance. The spread of results is the honest answer, not the single number."],
+["Has anything been wrong before?","Several things, and they're documented. A leaked feature once faked 97% play-call accuracy. A sign error once faked 70% against the spread. A fourth-down model once recommended a 116-yard field goal. All found, fixed, and written up."],
+];
+$('#faq-list').innerHTML=FAQ.map(([q,a],i)=>`<div class="faq-i">
+  <button class="faq-q" aria-expanded="false" aria-controls="fa-${i}">${q}<span class="pm" aria-hidden="true">+</span></button>
+  <div class="faq-a" id="fa-${i}">${a}</div></div>`).join('');
+$$('.faq-q').forEach(b=>b.onclick=()=>{const o=b.parentElement.classList.toggle('open');b.setAttribute('aria-expanded',o)});
+
+const FORM_T0=Date.now();
+$('#sub-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const inp=$('#sub-email'),msg=$('#sub-msg'),btn=$('#sub-btn');
+  const v=inp.value.trim();
+  if(!v||!/^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(v)){
+    inp.classList.add('bad');msg.className='msg err';msg.textContent='Enter a valid email address.';inp.focus();return}
+  inp.classList.remove('bad');btn.disabled=true;msg.className='msg';msg.textContent='Signing you up…';
+  try{
+    const r=await fetch('/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:v,company:$('#company').value,elapsed_ms:Date.now()-FORM_T0})});
+    const d=await r.json();
+    if(d.ok){msg.className='msg ok';msg.textContent=d.message||"You're on the list.";inp.value=''}
+    else{msg.className='msg err';msg.textContent=d.error||'Something went wrong.'}
+  }catch(err){msg.className='msg err';msg.textContent='Could not reach the server. Try again.'}
+  btn.disabled=false;
+});
+
+const CK='gridiron_consent';
+function consent(){try{return localStorage.getItem(CK)}catch(e){return null}}
+function setConsent(v){try{localStorage.setItem(CK,v)}catch(e){}
+  $('#cookie').classList.remove('show');if(v==='all')startAnalytics()}
+function startAnalytics(){
+  // First-party, anonymous, and only after explicit consent.
+  fetch('/api/config').then(r=>r.json()).then(c=>{if(c.analytics_enabled)console.info('analytics on')}).catch(()=>{});
+}
+if(!consent())setTimeout(()=>$('#cookie').classList.add('show'),1100);
+else if(consent()==='all')startAnalytics();
+$('#ck-accept').onclick=()=>setConsent('all');
+$('#ck-reject').onclick=()=>setConsent('essential');
+$('#cookie-reopen').onclick=e=>{e.preventDefault();$('#cookie').classList.add('show')};
+
+function countUp(el,t,sfx,ms=850){
+  if(REDUCE){el.textContent=t+sfx;return}
+  const t0=performance.now();
+  (function s(n){const k=Math.min(1,(n-t0)/ms);el.textContent=Math.round(t*(1-(1-k)**3))+sfx;
+    if(k<1)requestAnimationFrame(s)})(t0)}
+(async function(){
+  try{
+    const [m,d]=await Promise.all([j('/data/metrics.json'),j('/data/predictions.json')]);
+    countUp($('#k-acc'),pct(m.game_predictor.accuracy),'%');
+    countUp($('#k-veg'),pct(m.game_predictor.vegas_accuracy),'%');
+    countUp($('#k-plays'),Math.round(m.data.plays/1000),'k',1000);
+    GAMES=d.games;
+    $('#board-label').textContent=`${d.season} season · week ${d.week} · ${d.games.length} games`;
+    $('#hp-week').textContent=`Week ${d.week} board`;
+    $('#hp-count').textContent=`${d.games.length} games`;
+    $('#hp-body').innerHTML=sortGames(d.games).slice(0,5).map(g=>{
+      const{a,h}=teamColors(g),hw=g.home_win_prob>=.5;
+      return `<div class="hp-game">${logoImg(hw?g.home_logo:g.away_logo,hw?g.home:g.away,hw?h:a,26,(hw?g.home_name:g.away_name)+' logo')}
+        <div class="ab">${hw?g.home:g.away}</div>
+        <div class="tr"><i data-w="${pct(g.confidence)}" style="background:${hw?h:a}"></i></div>
+        <div class="pc">${pct(g.confidence)}%</div></div>`}).join('');
+    requestAnimationFrame(()=>$$('#hp-body .tr i').forEach(i=>i.style.width=i.dataset.w+'%'));
+    renderBoard();
+  }catch(e){$('#games').innerHTML='<p style="color:var(--red)">Could not load this week\'s board. Refresh to try again.</p>'}
+  try{
+    EV=await j('/data/evidence.json');
+    drawCalibration();drawSeason();drawWeights();drawFdMap();drawCurves();buildHeat();
+  }catch(e){}
+  loadRanks();runPC();runFD();
+  buildMarquee();starfield();
+})();
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{
+  if(EV){drawCalibration();drawSeason();drawWeights();drawFdMap();drawCurves()}},220)});
+$$('#seg button').forEach(b=>b.onclick=()=>{$$('#seg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');SORT=b.dataset.sort;renderBoard()});
+</script>
+</body>
+</html>

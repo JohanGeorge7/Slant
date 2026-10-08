@@ -1,0 +1,362 @@
+{
+  "ARI": {
+    "name": "Arizona Cardinals",
+    "nick": "Cardinals",
+    "conf": "NFC",
+    "div": "NFC West",
+    "color": "#97233F",
+    "color2": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/ARI.png"
+  },
+  "ATL": {
+    "name": "Atlanta Falcons",
+    "nick": "Falcons",
+    "conf": "NFC",
+    "div": "NFC South",
+    "color": "#A71930",
+    "color2": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/ATL.png"
+  },
+  "BAL": {
+    "name": "Baltimore Ravens",
+    "nick": "Ravens",
+    "conf": "AFC",
+    "div": "AFC North",
+    "color": "#241773",
+    "color2": "#9E7C0C",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/BAL.png"
+  },
+  "BUF": {
+    "name": "Buffalo Bills",
+    "nick": "Bills",
+    "conf": "AFC",
+    "div": "AFC East",
+    "color": "#00338D",
+    "color2": "#C60C30",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/BUF.png"
+  },
+  "CAR": {
+    "name": "Carolina Panthers",
+    "nick": "Panthers",
+    "conf": "NFC",
+    "div": "NFC South",
+    "color": "#0085CA",
+    "color2": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/car.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/CAR.png"
+  },
+  "CHI": {
+    "name": "Chicago Bears",
+    "nick": "Bears",
+    "conf": "NFC",
+    "div": "NFC North",
+    "color": "#0B162A",
+    "color2": "#E64100",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/chi.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/CHI.png"
+  },
+  "CIN": {
+    "name": "Cincinnati Bengals",
+    "nick": "Bengals",
+    "conf": "AFC",
+    "div": "AFC North",
+    "color": "#FB4F14",
+    "color2": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/CIN.png"
+  },
+  "CLE": {
+    "name": "Cleveland Browns",
+    "nick": "Browns",
+    "conf": "AFC",
+    "div": "AFC North",
+    "color": "#FF3C00",
+    "color2": "#311D00",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/CLE.png"
+  },
+  "DAL": {
+    "name": "Dallas Cowboys",
+    "nick": "Cowboys",
+    "conf": "NFC",
+    "div": "NFC East",
+    "color": "#002244",
+    "color2": "#B0B7BC",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/DAL.png"
+  },
+  "DEN": {
+    "name": "Denver Broncos",
+    "nick": "Broncos",
+    "conf": "AFC",
+    "div": "AFC West",
+    "color": "#002244",
+    "color2": "#FB4F14",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/den.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/DEN.png"
+  },
+  "DET": {
+    "name": "Detroit Lions",
+    "nick": "Lions",
+    "conf": "NFC",
+    "div": "NFC North",
+    "color": "#0076B6",
+    "color2": "#B0B7BC",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/det.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/DET.png"
+  },
+  "GB": {
+    "name": "Green Bay Packers",
+    "nick": "Packers",
+    "conf": "NFC",
+    "div": "NFC North",
+    "color": "#203731",
+    "color2": "#FFB612",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/GB.png"
+  },
+  "HOU": {
+    "name": "Houston Texans",
+    "nick": "Texans",
+    "conf": "AFC",
+    "div": "AFC South",
+    "color": "#03202F",
+    "color2": "#A71930",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/HOU.png"
+  },
+  "IND": {
+    "name": "Indianapolis Colts",
+    "nick": "Colts",
+    "conf": "AFC",
+    "div": "AFC South",
+    "color": "#002C5F",
+    "color2": "#a5acaf",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/IND.png"
+  },
+  "JAX": {
+    "name": "Jacksonville Jaguars",
+    "nick": "Jaguars",
+    "conf": "AFC",
+    "div": "AFC South",
+    "color": "#006778",
+    "color2": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/JAX.png"
+  },
+  "KC": {
+    "name": "Kansas City Chiefs",
+    "nick": "Chiefs",
+    "conf": "AFC",
+    "div": "AFC West",
+    "color": "#E31837",
+    "color2": "#FFB612",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/KC.png"
+  },
+  "LA": {
+    "name": "Los Angeles Rams",
+    "nick": "Rams",
+    "conf": "NFC",
+    "div": "NFC West",
+    "color": "#003594",
+    "color2": "#FFD100",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/LA.png"
+  },
+  "LAC": {
+    "name": "Los Angeles Chargers",
+    "nick": "Chargers",
+    "conf": "AFC",
+    "div": "AFC West",
+    "color": "#007BC7",
+    "color2": "#ffc20e",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/LAC.png"
+  },
+  "LAR": {
+    "name": "Los Angeles Rams",
+    "nick": "Rams",
+    "conf": "NFC",
+    "div": "NFC West",
+    "color": "#003594",
+    "color2": "#FFD100",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/LAR.png"
+  },
+  "LV": {
+    "name": "Las Vegas Raiders",
+    "nick": "Raiders",
+    "conf": "AFC",
+    "div": "AFC West",
+    "color": "#000000",
+    "color2": "#A5ACAF",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/LV.png"
+  },
+  "MIA": {
+    "name": "Miami Dolphins",
+    "nick": "Dolphins",
+    "conf": "AFC",
+    "div": "AFC East",
+    "color": "#008E97",
+    "color2": "#F58220",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/MIA.png"
+  },
+  "MIN": {
+    "name": "Minnesota Vikings",
+    "nick": "Vikings",
+    "conf": "NFC",
+    "div": "NFC North",
+    "color": "#4F2683",
+    "color2": "#FFC62F",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/min.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/MIN.png"
+  },
+  "NE": {
+    "name": "New England Patriots",
+    "nick": "Patriots",
+    "conf": "AFC",
+    "div": "AFC East",
+    "color": "#002244",
+    "color2": "#C60C30",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/NE.png"
+  },
+  "NO": {
+    "name": "New Orleans Saints",
+    "nick": "Saints",
+    "conf": "NFC",
+    "div": "NFC South",
+    "color": "#D3BC8D",
+    "color2": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/no.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/NO.png"
+  },
+  "NYG": {
+    "name": "New York Giants",
+    "nick": "Giants",
+    "conf": "NFC",
+    "div": "NFC East",
+    "color": "#0B2265",
+    "color2": "#A71930",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/NYG.png"
+  },
+  "NYJ": {
+    "name": "New York Jets",
+    "nick": "Jets",
+    "conf": "AFC",
+    "div": "AFC East",
+    "color": "#003F2D",
+    "color2": "#000000",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/NYJ.png"
+  },
+  "OAK": {
+    "name": "Oakland Raiders",
+    "nick": "Raiders",
+    "conf": "AFC",
+    "div": "AFC West",
+    "color": "#000000",
+    "color2": "#A5ACAF",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/OAK.png"
+  },
+  "PHI": {
+    "name": "Philadelphia Eagles",
+    "nick": "Eagles",
+    "conf": "NFC",
+    "div": "NFC East",
+    "color": "#004C54",
+    "color2": "#A5ACAF",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/PHI.png"
+  },
+  "PIT": {
+    "name": "Pittsburgh Steelers",
+    "nick": "Steelers",
+    "conf": "AFC",
+    "div": "AFC North",
+    "color": "#000000",
+    "color2": "#FFB612",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/PIT.png"
+  },
+  "SD": {
+    "name": "San Diego Chargers",
+    "nick": "Chargers",
+    "conf": "AFC",
+    "div": "AFC West",
+    "color": "#007BC7",
+    "color2": "#ffc20e",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/SD.png"
+  },
+  "SEA": {
+    "name": "Seattle Seahawks",
+    "nick": "Seahawks",
+    "conf": "NFC",
+    "div": "NFC West",
+    "color": "#002244",
+    "color2": "#69be28",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/SEA.png"
+  },
+  "SF": {
+    "name": "San Francisco 49ers",
+    "nick": "49ers",
+    "conf": "NFC",
+    "div": "NFC West",
+    "color": "#AA0000",
+    "color2": "#B3995D",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/SF.png"
+  },
+  "STL": {
+    "name": "St. Louis Rams",
+    "nick": "Rams",
+    "conf": "NFC",
+    "div": "NFC West",
+    "color": "#003594",
+    "color2": "#FFD100",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/STL.png"
+  },
+  "TB": {
+    "name": "Tampa Bay Buccaneers",
+    "nick": "Buccaneers",
+    "conf": "NFC",
+    "div": "NFC South",
+    "color": "#A71930",
+    "color2": "#322F2B",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/TB.png"
+  },
+  "TEN": {
+    "name": "Tennessee Titans",
+    "nick": "Titans",
+    "conf": "AFC",
+    "div": "AFC South",
+    "color": "#4495D2",
+    "color2": "#D50A0A",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/TEN.png"
+  },
+  "WAS": {
+    "name": "Washington Commanders",
+    "nick": "Commanders",
+    "conf": "NFC",
+    "div": "NFC East",
+    "color": "#5A1414",
+    "color2": "#FFB612",
+    "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png",
+    "wordmark": "https://github.com/nflverse/nflverse-pbp/raw/master/wordmarks/WAS.png"
+  }
+}
